@@ -102,7 +102,7 @@ module.exports = class ReverseCommand extends libCommand.Command {
                 console.log('Passed extension check.');
                 // Generate a unique name first.
                 let uuidFileName = this.uuidv4();
-                let uuidFile = './cache/' + uuidFileName + '.' + uuidFileNameExtension;
+                let uuidFile = './cache/reverse/' + uuidFileName + '.' + uuidFileNameExtension;
                 // Download the image
                 await this.download(resolvedMessage.attachments.first().url, uuidFile);
 
