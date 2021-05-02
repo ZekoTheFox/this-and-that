@@ -29,13 +29,15 @@ botClient.on('message', msg => {
                         args.push(argumentsSplit[index]);
                     }
                     try {
-                        (new tmpCommand()).run(msg, botClient, args);
+                        let executeCommand = new tmpCommand();
+                        if (executeCommand.internalCommandEnabled)
+                            executeCommand.run(msg, botClient, args);
                     } catch (err) {
                         msg.channel.send(new MessageEmbed()
                             .setTitle('This And That | Error')
                             .setColor(0xff0000)
                             .setDescription('An error occurred trying to process the command!'));
-                        console.log('Error in processing command!')
+                        console.log('Error in processing command!');
                         console.error(err);
                     }
                     ranCommand = true;
