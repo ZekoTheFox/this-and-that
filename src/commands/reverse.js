@@ -119,6 +119,8 @@ module.exports = class ReverseCommand extends libCommand.Command {
                         return requestCallback(err);
                     var r = libRequest.post(botConfig.bingApiEndpoint, (err, res, body) => {
                         // console.log(JSON.stringify(JSON.parse(body), null, '  '));
+                        // Log responsed data
+                        libFs.writeFile(`./logs/api/${uuidFileName}.json`, body);
                         console.log('Found image. Sending response...')
                         let responseData = JSON.parse(body);
                         let imageData = responseData.tags[0].actions.filter(e => e.actionType === 'VisualSearch')[0].data.value;
