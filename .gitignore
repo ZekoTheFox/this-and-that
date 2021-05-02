@@ -1,3 +1,7 @@
+# !!! This And That !!!
+config.json
+cache
+
 # Logs
 logs
 *.log

@@ -1,0 +1,11 @@
+{
+    "discordToken": "TOKEN_HERE",
+    "bingApiKey": "APIKEY_HERE",
+    "bingApiEndpoint": "https://api.bing.microsoft.com/v7.0/images/visualsearch",
+    "botConfig": {
+        "commandDelay": 5,
+        "deleteAfterUpload": true,
+        "embedColor": "ffffff",
+        "prefix": "&"
+    }
+}
