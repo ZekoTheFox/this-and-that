@@ -65,7 +65,14 @@ module.exports = class ReverseCommand extends libCommand.Command {
     }
 
     run(message, client, args) {
-        if (args[0].toLowerCase() !== 'yes') {
+        if (args[0]) {
+            if (args[0].toLowerCase() !== 'yes') {
+                return message.channel.send(new MessageEmbed()
+                    .setTitle('This And That | Error')
+                    .setColor(0xff0000)
+                    .setDescription('You must agree to the terms of service by using `&reverse yes <ID>`\nBy saying `yes`, you are agreeing that you will not abuse this service, and that you agree to Microsoft\'s [Privacy Policy](https://privacy.microsoft.com/en-us/privacystatement), as well as [Service Agreement](https://www.microsoft.com/en-us/servicesagreement/).'));
+            }
+        } else {
             return message.channel.send(new MessageEmbed()
                 .setTitle('This And That | Error')
                 .setColor(0xff0000)
