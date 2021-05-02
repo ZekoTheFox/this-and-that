@@ -17,7 +17,7 @@ module.exports = class ReverseCommand extends libCommand.Command {
         this.internalCommandTriggerName = 'reverse';
         // Help Information
         this.helpCommandTitle = 'Reverse Image Search';
-        this.helpCommandDescription = 'This command reverse image searches the attachment snowflake id given.\nSupported Filename Extensions: *.png, *.jpg, *.jpeg';
+        this.helpCommandDescription = 'This command reverse image searches the attachment snowflake id given.\nSupported Filename Extensions: *.png, *.jpg, *.jpeg, *.gif';
         this.helpCommandColor = parseInt('0x' + botConfig.botConfig.embedColor);
     }
 
@@ -91,7 +91,7 @@ module.exports = class ReverseCommand extends libCommand.Command {
             }
             console.log('Resolved snowflake, checking attachment extension...');
             let uuidFileNameExtension = resolvedMessage.attachments.first().name.split('.')[1];
-            if (uuidFileNameExtension === 'png' || uuidFileNameExtension === 'jpg' || uuidFileNameExtension === 'jpeg') {
+            if (uuidFileNameExtension === 'png' || uuidFileNameExtension === 'jpg' || uuidFileNameExtension === 'jpeg' || uuidFileNameExtension === 'gif') {
                 // TODO: Add file size limit
                 console.log('Passed extension check.');
                 // Generate a unique name first.
@@ -174,6 +174,12 @@ module.exports = class ReverseCommand extends libCommand.Command {
                 //     console.log('Couldn\'t find image tags!');
                 // }
 
+            }
+            else {
+                message.channel.send(new MessageEmbed()
+                    .setTitle('This And That | Error')
+                    .setColor(0xff0000)
+                    .setDescription('No file, or an unsupported file was linked to the ID.'));
             }
 
         })();
