@@ -99,7 +99,6 @@ module.exports = class ReverseCommand extends libCommand.Command {
             console.log('Resolved snowflake, checking attachment extension...');
             let uuidFileNameExtension = resolvedMessage.attachments.first().name.split('.')[1];
             if (uuidFileNameExtension === 'png' || uuidFileNameExtension === 'jpg' || uuidFileNameExtension === 'jpeg' || uuidFileNameExtension === 'gif') {
-                // TODO: Add file size limit
                 console.log('Passed extension check.');
                 // Generate a unique name first.
                 let uuidFileName = this.uuidv4();
@@ -107,13 +106,19 @@ module.exports = class ReverseCommand extends libCommand.Command {
                 // Download the image
                 await this.download(resolvedMessage.attachments.first().url, uuidFile);
 
+                if (libFs.statSync(uuidFile)['size'] > 1024 * 1000)
+                    return message.channel.send(new MessageEmbed()
+                        .setTitle('This And That | Error')
+                        .setColor(0xff0000)
+                        .setDescription('The file / attachment is too large to reverse image search. Try downscaling or cropping the image. (Max file size is 1MB, sowwy...)'));
+
                 let form = new FormData();
                 form.append('image', libFs.createReadStream(uuidFile));
                 form.getLength((err, length) => {
                     if (err)
                         return requestCallback(err);
                     var r = libRequest.post(botConfig.bingApiEndpoint, (err, res, body) => {
-                        console.log(JSON.stringify(JSON.parse(body), null, '  '));
+                        // console.log(JSON.stringify(JSON.parse(body), null, '  '));
                         console.log('Found image. Sending response...')
                         let responseData = JSON.parse(body);
                         let imageData = responseData.tags[0].actions.filter(e => e.actionType === 'VisualSearch')[0].data.value;
