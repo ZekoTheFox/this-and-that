@@ -93,7 +93,7 @@ module.exports = class ReverseCommand extends libCommand.Command {
                 message.channel.send(new MessageEmbed()
                     .setTitle('This And That | Error')
                     .setColor(0xff0000)
-                    .setDescription('An error occurred when attempting to resolve the specified message id!\nAre you in the same channel that the ID is in?'));
+                    .setDescription('An error occurred when attempting to resolve the specified message ID!\nAre you in the same channel that the ID is in?'));
                 return console.log('Unable to resolve message.');
             }
             console.log('Resolved snowflake, checking attachment extension...');
@@ -120,14 +120,15 @@ module.exports = class ReverseCommand extends libCommand.Command {
                     var r = libRequest.post(botConfig.bingApiEndpoint, (err, res, body) => {
                         // console.log(JSON.stringify(JSON.parse(body), null, '  '));
                         // Log responsed data
-                        libFs.writeFile(`./logs/api/${uuidFileName}.json`, body);
+                        libFs.writeFile(`./logs/api/${uuidFileName}.json`, body, (err) => console.error);
                         console.log('Found image. Sending response...')
                         let responseData = JSON.parse(body);
                         let imageData = responseData.tags[0].actions.filter(e => e.actionType === 'VisualSearch')[0].data.value;
                         message.channel.send(new MessageEmbed()
                             .setTitle('This And That | Reverse Image Search')
+                            .setFooter(`Response ID: ${uuidFileName}`)
                             .setColor(0xffffff)
-                            .setDescription(`I found ${imageData.length} or more images. Showing the top-most image returned...\n\n__"${imageData[0].name}"__\n[${imageData[0].contentUrl}](${imageData[0].contentUrl})`)
+                            .setDescription(`I found ${imageData.length} or more images. Showing the top-most image returned...\n\n__"${imageData[0].name}"__\n[Image Link](${imageData[0].contentUrl})`)
                             .setImage(imageData[0].contentUrl));
 
                         libFs.unlink(uuidFile, (err) => {
