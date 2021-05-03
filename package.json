@@ -17,9 +17,10 @@
   },
   "homepage": "https://github.com/ZekoTheFox/this-and-that#readme",
   "dependencies": {
-    "@azure/cognitiveservices-visualsearch": "^3.0.1",
-    "@azure/ms-rest-azure-js": "^2.1.0",
     "discord.js": "^12.5.3",
+    "ffmpeg-stream": "^0.7.0",
+    "form-data": "^4.0.0",
+    "image-size": "^1.0.0",
     "request": "^2.88.2"
   }
 }
