@@ -14,10 +14,9 @@ module.exports = class ReverseCommand extends libCommand.Command {
         super();
         // Meta Command Information
         this.internalCommandEnabled = true;
-        this.internalCommandTriggerName = 'reverse';
         // Help Information
         this.helpCommandTitle = 'Reverse Image Search';
-        this.helpCommandDescription = 'This command reverse image searches the attachment snowflake id given.\nSupported Filename Extensions: *.png, *.jpg, *.jpeg, *.gif';
+        this.helpCommandDescription = 'This command reverse image searches the attachment snowflake id given.\nSupported Filename Extensions: `*.png, `*.jpg`, `*.jpeg`, `*.gif`';
         this.helpCommandColor = parseInt('0x' + botConfig.botConfig.embedColor);
     }
 
@@ -102,7 +101,7 @@ module.exports = class ReverseCommand extends libCommand.Command {
                 console.log('Passed extension check.');
                 // Generate a unique name first.
                 let uuidFileName = this.uuidv4();
-                let uuidFile = './cache/reverse/' + uuidFileName + '.' + uuidFileNameExtension;
+                let uuidFile = './cache/images/' + uuidFileName + '.' + uuidFileNameExtension;
                 // Download the image
                 await this.download(resolvedMessage.attachments.first().url, uuidFile);
 
