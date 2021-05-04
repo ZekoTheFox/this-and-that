@@ -52,7 +52,7 @@ module.exports = class MoreCommand extends libCommand.Command {
                     .setImage(validImages[args[1]].contentUrl)
                     .setDescription(`Index: ${args[1]}` +
                         `\n\n__"${validImages[args[1]].name}"__` +
-                        `\n\n[Image Link](${validImages[args[1]].contentUrl})`)
+                        `\n[Image Link](${validImages[args[1]].contentUrl})`)
                     .setFooter(`Queried ID: ${args[0]}`));
             });
         })();
