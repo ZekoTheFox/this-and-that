@@ -126,7 +126,7 @@ module.exports = class ReverseCommand extends libCommand.Command {
                         message.channel.send(createEmbedImage(
                             `I found ${imageData.length} or more images. Showing the top-most image returned...`
                             + `\n\n__"${imageData[0].name}"__\n[Image Link](${imageData[0].contentUrl})`,
-                            'This And That | Reverse Image Search',
+                            'Reverse Image Search',
                             `Response ID: ${uuidFileName}`,
                             imageData[0].contentUrl));
 
