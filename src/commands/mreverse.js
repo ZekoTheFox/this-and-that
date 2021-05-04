@@ -17,8 +17,8 @@ module.exports = class MReverseCommand extends libCommand.Command {
         this.helpInfo = {
             title: 'Reverse Audio Search',
             description: 'Uses fingerprinting to reverse search audio files.\nSupported File Extensions: `*.mp3`, `*.wav`, `*.m4a`',
-            syntax: 'more <TOS> <ID>',
-            example: 'more <TOS> 838929937498112050'
+            syntax: 'mreverse <TOS> <ID>',
+            example: 'mreverse <TOS> 838929937498112050'
         }
     }
 
