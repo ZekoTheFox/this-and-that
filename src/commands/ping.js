@@ -15,10 +15,9 @@ module.exports = class PingCommand extends libCommand.Command {
     }
 
     run(message, client) {
-        
         message.channel.send(new MessageEmbed()
-        .setTitle('This And That | Ping')
-        .setColor(0xffffff)
-        .setDescription(`Ping: ${client.ws.ping}ms`));
+            .setTitle('This And That | Ping')
+            .setColor(0xffffff)
+            .setDescription(`Ping: ${client.ws.ping}ms`));
     }
 }
