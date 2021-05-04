@@ -67,10 +67,10 @@ module.exports = class ReverseCommand extends libCommand.Command {
     }
 
     showImageTOS() {
-        return message.channel.send(createEmbedError(
+        return createEmbedError(
             'You must agree to the terms of service by using `&ireverse yes <ID>`'
             + '\nBy saying `yes`, you are agreeing that you will not abuse this service, and will use it willingly without any gurantees or warrenty of any kind.'
-            + '\nUsing this command also requires that you agree to Microsoft\'s [Privacy Policy](https://privacy.microsoft.com/en-us/privacystatement), as well as [Service Agreement](https://www.microsoft.com/en-us/servicesagreement/).'));
+            + '\nUsing this command also requires that you agree to Microsoft\'s [Privacy Policy](https://privacy.microsoft.com/en-us/privacystatement), as well as [Service Agreement](https://www.microsoft.com/en-us/servicesagreement/).');
     }
 
     run(message, client, args) {
