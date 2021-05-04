@@ -6,7 +6,6 @@
     "botConfig": {
         "commandDelay": 5,
         "deleteAfterUpload": true,
-        "embedColor": "ffffff",
         "prefix": "&"
     }
 }
