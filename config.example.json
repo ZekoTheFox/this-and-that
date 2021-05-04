@@ -2,6 +2,7 @@
     "discordToken": "TOKEN_HERE",
     "bingApiKey": "APIKEY_HERE",
     "bingApiEndpoint": "https://api.bing.microsoft.com/v7.0/images/visualsearch",
+    "acoustidApiKey": "APIKEY_HERE",
     "botConfig": {
         "commandDelay": 5,
         "deleteAfterUpload": true,
