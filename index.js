@@ -7,9 +7,9 @@ const botConfig = require('./config.json');
 // Auth to Discord
 
 const libDiscord = require('discord.js');
-const { MessageEmbed } = require('discord.js');
 const libFs = require('fs');
 const botClient = new libDiscord.Client();
+const { createEmbedError } = require('./src/util/embed');
 
 botClient.on('ready', () => {
     console.log(`Logged in as ${botClient.user.tag}!`);
@@ -33,10 +33,7 @@ botClient.on('message', msg => {
                         if (executeCommand.internalCommandEnabled)
                             executeCommand.run(msg, botClient, args);
                     } catch (err) {
-                        msg.channel.send(new MessageEmbed()
-                            .setTitle('This And That | Error')
-                            .setColor(0xff0000)
-                            .setDescription('An error occurred trying to process the command!'));
+                        msg.channel.send(createEmbedError('An error occurred trying to process that command!'));
                         console.log('Error in processing command!');
                         console.error(err);
                     }
@@ -44,10 +41,7 @@ botClient.on('message', msg => {
                 }
             });
             if (ranCommand === false) {
-                msg.channel.send(new MessageEmbed()
-                    .setTitle('This And That | Error')
-                    .setColor(0xff0000)
-                    .setDescription('Unknown command!'));
+                msg.channel.send(createEmbedError('Unknown command!'))
             }
         });
     }

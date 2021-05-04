@@ -3,10 +3,10 @@ const libCommand = require('../command.js');
 const libFs = require('fs');
 const libRequest = require('request');
 // Constants
-const { MessageEmbed } = require('discord.js');
 const http = require('http');
 const https = require('https');
 const FormData = require('form-data');
+const { createEmbedError, createEmbedImage } = require('../util/embed');
 
 
 module.exports = class ReverseCommand extends libCommand.Command {
@@ -15,9 +15,12 @@ module.exports = class ReverseCommand extends libCommand.Command {
         // Meta Command Information
         this.internalCommandEnabled = true;
         // Help Information
-        this.helpCommandTitle = 'Reverse Image Search';
-        this.helpCommandDescription = 'This command reverse image searches the attachment snowflake id given.\nSupported Filename Extensions: `*.png, `*.jpg`, `*.jpeg`, `*.gif`';
-        this.helpCommandColor = parseInt('0x' + botConfig.botConfig.embedColor);
+        this.helpInfo = {
+            title: 'Reverse Image Search',
+            description: 'Reverse image searches the attachment from the ID given.\nSupported Filename Extensions: `*.png`, `*.jpg`, `*.jpeg`, `*.gif`',
+            syntax: 'ireverse <TOS> <ID>',
+            example: 'ireverse <TOS> 838366042727383041'
+        }
     }
 
     uuidv4() {
@@ -63,24 +66,25 @@ module.exports = class ReverseCommand extends libCommand.Command {
         });
     }
 
+    showImageTOS() {
+        return message.channel.send(createEmbedError(
+            'You must agree to the terms of service by using `&ireverse yes <ID>`'
+            + '\nBy saying `yes`, you are agreeing that you will not abuse this service, and will use it willingly without any gurantees or warrenty of any kind.'
+            + '\nUsing this command also requires that you agree to Microsoft\'s [Privacy Policy](https://privacy.microsoft.com/en-us/privacystatement), as well as [Service Agreement](https://www.microsoft.com/en-us/servicesagreement/).'));
+    }
+
     run(message, client, args) {
-        if (args[0]) {
-            if (args[0].toLowerCase() !== 'yes') {
-                return message.channel.send(new MessageEmbed()
-                    .setTitle('This And That | Error')
-                    .setColor(0xff0000)
-                    .setDescription('You must agree to the terms of service by using `&reverse yes <ID>`\nBy saying `yes`, you are agreeing that you will not abuse this service, and that you agree to Microsoft\'s [Privacy Policy](https://privacy.microsoft.com/en-us/privacystatement), as well as [Service Agreement](https://www.microsoft.com/en-us/servicesagreement/).'));
-            }
-        } else {
-            return message.channel.send(new MessageEmbed()
-                .setTitle('This And That | Error')
-                .setColor(0xff0000)
-                .setDescription('You must agree to the terms of service by using `&reverse yes <ID>`\nBy saying `yes`, you are agreeing that you will not abuse this service, and that you agree to Microsoft\'s [Privacy Policy](https://privacy.microsoft.com/en-us/privacystatement), as well as [Service Agreement](https://www.microsoft.com/en-us/servicesagreement/).'));
+        console.log('Received arguments:', args);
+
+        if (!args[0]) {
+            return message.channel.send(this.showImageTOS());
+        }
+        if (args[0].toLowerCase() !== 'yes') {
+            return message.channel.send(this.showImageTOS());
         }
 
-        let resolvedMessage;
-        console.log('Printing received arguments: ', args);
         (async () => {
+            let resolvedMessage;
             await message.channel.messages.fetch(args[1])
                 .then(message => {
                     resolvedMessage = message;
@@ -89,10 +93,9 @@ module.exports = class ReverseCommand extends libCommand.Command {
                     console.error(err);
                 });
             if (!resolvedMessage) {
-                message.channel.send(new MessageEmbed()
-                    .setTitle('This And That | Error')
-                    .setColor(0xff0000)
-                    .setDescription('An error occurred when attempting to resolve the specified message ID!\nAre you in the same channel that the ID is in?'));
+                message.channel.send(createEmbedError(
+                    'An error occurred when attempting to resolve the specified message ID!'
+                    + '\nAre you in the same channel that the ID is in?'));
                 return console.log('Unable to resolve message.');
             }
             console.log('Resolved snowflake, checking attachment extension...');
@@ -106,10 +109,7 @@ module.exports = class ReverseCommand extends libCommand.Command {
                 await this.download(resolvedMessage.attachments.first().url, uuidFile);
 
                 if (libFs.statSync(uuidFile)['size'] > 1024 * 1000)
-                    return message.channel.send(new MessageEmbed()
-                        .setTitle('This And That | Error')
-                        .setColor(0xff0000)
-                        .setDescription('The file / attachment is too large to reverse image search. Try downscaling or cropping the image. (Max file size is 1MB, sowwy...)'));
+                    return message.channel.send(createEmbedError('The file / attachment is too large to reverse image search. Try downscaling or cropping the image. (Max file size is 1MB, sowwy...)'));
 
                 let form = new FormData();
                 form.append('image', libFs.createReadStream(uuidFile));
@@ -123,12 +123,12 @@ module.exports = class ReverseCommand extends libCommand.Command {
                         console.log('Found image. Sending response...')
                         let responseData = JSON.parse(body);
                         let imageData = responseData.tags[0].actions.filter(e => e.actionType === 'VisualSearch')[0].data.value;
-                        message.channel.send(new MessageEmbed()
-                            .setTitle('This And That | Reverse Image Search')
-                            .setFooter(`Response ID: ${uuidFileName}`)
-                            .setColor(0xffffff)
-                            .setDescription(`I found ${imageData.length} or more images. Showing the top-most image returned...\n\n__"${imageData[0].name}"__\n[Image Link](${imageData[0].contentUrl})`)
-                            .setImage(imageData[0].contentUrl));
+                        message.channel.send(createEmbedImage(
+                            `I found ${imageData.length} or more images. Showing the top-most image returned...`
+                            + `\n\n__"${imageData[0].name}"__\n[Image Link](${imageData[0].contentUrl})`,
+                            'This And That | Reverse Image Search',
+                            `Response ID: ${uuidFileName}`,
+                            imageData[0].contentUrl));
 
                         libFs.unlink(uuidFile, (err) => {
                             if (err)
@@ -139,61 +139,9 @@ module.exports = class ReverseCommand extends libCommand.Command {
                     r._form = form;
                     r.setHeader('Ocp-Apim-Subscription-Key', botConfig.bingApiKey);
                 });
-
-                // let creditentials = new CognitiveServicesCredentials(botConfig.bingApiKey);
-                // let searchClient = new libSearch.VisualSearchClient(creditentials, { endpoint: botConfig.bingApiEndpoint });
-                // let fileStream;
-                // await libFs.readFile(uuidFile, (err, data) => {
-                //     fileStream = data;
-                // })
-                // let searchRequest = JSON.stringify({});
-                // let searchResults;
-
-                // try {
-                //     searchResults = await searchClient.images.visualSearch({
-                //         image: fileStream,
-                //         knowledgeRequest: searchRequest
-                //     });
-
-                //     console.log(`Searching images with binary of requested image: ${uuidFile}`);
-                // } catch (err) {
-                //     console.log('Encountered exception: ' + err.message);
-                //     console.error(err);
-                // }
-
-                // if (searchResults.image.imageInsightsToken) {
-                //     console.log(`Uploaded image token: ${searchResults.image.imageInsightsToken}`);
-                // } else {
-                //     console.log('Couldn\'t find image token!');
-                // }
-
-                // if (searchResults.tags.length > 0) {
-                //     let firstTagResult = searchResults.tags[0];
-                //     console.log(`Visual search tag count: ${searchResults.tags.length}`);
-                //     console.log('OUTPUTTING RAW DATA!!! ------------------------------------------------------------');
-                //     console.log(searchResults.tags);
-                //     console.log('DONE!!! ---------------------------------------------------------------------------');
-
-                //     if (firstTagResult.actions.length > 0) {
-                //         let firstActionResult = firstTagResult.actions[0];
-                //         console.log(`First tag action count: ${firstTagResult.actions.length}`);
-                //         console.log(`First tag action type: ${firstActionResult.actionType}`);
-                //     }
-                //     else {
-                //         console.log('Couldn\'t find tag actions!');
-                //     }
-
-                // }
-                // else {
-                //     console.log('Couldn\'t find image tags!');
-                // }
-
             }
             else {
-                message.channel.send(new MessageEmbed()
-                    .setTitle('This And That | Error')
-                    .setColor(0xff0000)
-                    .setDescription('No file, or an unsupported file was linked to the ID.'));
+                message.channel.send(createEmbedError('No file, or an unsupported file was linked to the ID.'));
             }
 
         })();

@@ -1,7 +1,6 @@
-const botConfig = require('../../config.json');
 const libCommand = require('../command.js');
 // Constants
-const { MessageEmbed } = require('discord.js');
+const { createEmbedSuccess } = require('../util/embed');
 
 module.exports = class PingCommand extends libCommand.Command {
     constructor() {
@@ -9,15 +8,15 @@ module.exports = class PingCommand extends libCommand.Command {
         // Meta Command Information
         this.internalCommandEnabled = true;
         // Help Information
-        this.helpCommandTitle = 'Ping';
-        this.helpCommandDescription = 'Ping from Discord to this bot.';
-        this.helpCommandColor = parseInt('0x' + botConfig.botConfig.embedColor);
+        this.helpInfo = {
+            title: 'Ping',
+            description: 'Ping from Discord to this bot.',
+            syntax: 'ping',
+            example: 'ping'
+        }
     }
 
     run(message, client) {
-        message.channel.send(new MessageEmbed()
-            .setTitle('This And That | Ping')
-            .setColor(0xffffff)
-            .setDescription(`Ping: ${client.ws.ping}ms`));
+        message.channel.send(createEmbedSuccess(`Ping: ${client.ws.ping}ms`, 'Ping', 'No clue why you need this though...'));
     }
 }
