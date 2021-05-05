@@ -112,9 +112,9 @@ module.exports = class MReverseCommand extends libCommand.Command {
                 if (stdOut) {
                     let output = JSON.parse(stdOut);
                     let url = `https://api.acoustid.org/v2/lookup?client=${botConfig.acoustidApiKey}`
-                    + `&duration=${Math.floor(output.duration)}`
-                    + `&fingerprint=${output.fingerprint}`
-                    + '&meta=recordings+releasegroups+compress';
+                        + `&duration=${Math.floor(output.duration)}`
+                        + `&fingerprint=${output.fingerprint}`
+                        + '&meta=recordings+releasegroups+compress';
                     libFetch(url)
                         .then(res => res.json())
                         .then(json => {
@@ -137,6 +137,9 @@ module.exports = class MReverseCommand extends libCommand.Command {
                                 + `\n**Artist(s)**: *${arrayMusicArtists.join(', ')}*`,
                                 'Reverse Audio Search',
                                 'Is this the right song? I can\'t really tell...'));
+                        })
+                        .catch(() => {
+                            return message.channel.send(createEmbedError('Unable to identify the audio file.'));
                         });
 
                     libFs.unlink(targetDownloadFile, (err) => console.error);
