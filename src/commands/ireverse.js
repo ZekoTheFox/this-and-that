@@ -99,12 +99,14 @@ module.exports = class ReverseCommand extends libCommand.Command {
                 return console.log('Unable to resolve message.');
             }
             console.log('Resolved snowflake, checking attachment extension...');
-            let uuidFileNameExtension = resolvedMessage.attachments.first().name.split('.')[1];
+            let resolvedMessageFile = resolvedMessage.attachments.first().name;
+            let targetDownloadFileExtension = resolvedMessageFile.substring(resolvedMessageFile.length - 4);
+            let uuidFileNameExtension = targetDownloadFileExtension.startsWith('.') ? targetDownloadFileExtension.substring(1) : targetDownloadFileExtension ;
             if (uuidFileNameExtension === 'png' || uuidFileNameExtension === 'jpg' || uuidFileNameExtension === 'jpeg' || uuidFileNameExtension === 'gif') {
                 console.log('Passed extension check.');
                 // Generate a unique name first.
                 let uuidFileName = this.uuidv4();
-                let uuidFile = './cache/images/' + uuidFileName + '.' + uuidFileNameExtension;
+                let uuidFile = `./cache/images/${uuidFileName}.${uuidFileNameExtension}`;
                 // Download the image
                 await this.download(resolvedMessage.attachments.first().url, uuidFile);
 
@@ -116,13 +118,13 @@ module.exports = class ReverseCommand extends libCommand.Command {
                 form.getLength((err, length) => {
                     if (err)
                         return requestCallback(err);
-                    var r = libRequest.post(botConfig.bingApiEndpoint, (err, res, body) => {
+                    var r = libRequest.post(botConfig.bingApiEndpoint, (err2, res, body) => {
                         // console.log(JSON.stringify(JSON.parse(body), null, '  '));
                         // Log responsed data
-                        libFs.writeFile(`./logs/api/${uuidFileName}.json`, body, (err) => console.error);
+                        libFs.writeFileSync(`./logs/api/${uuidFileName}.json`, body);
                         console.log('Found image. Sending response...')
                         let responseData = JSON.parse(body);
-                        let imageData = responseData.tags[0].actions.filter(e => e.actionType === 'VisualSearch')[0].data.value;
+                        let imageData = responseData.tags[0].actions.filter(e => e.actionType === 'PagesIncluding')[0].data.value;
                         message.channel.send(createEmbedImage(
                             `I found ${imageData.length} or more images. Showing the top-most image returned...`
                             + `\n\n__"${imageData[0].name}"__\n[Image Link](${imageData[0].contentUrl})`,
