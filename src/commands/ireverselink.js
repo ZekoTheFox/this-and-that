@@ -87,7 +87,9 @@ module.exports = class ReverseCommand extends libCommand.Command {
             console.log('Received link, checking attachment extension and origin...');
             let resolvedMessageFile = args[1];
             if (!resolvedMessageFile.startsWith('https://cdn.discordapp.com/attachments/')) {
-                return message.channel.send(createEmbedError('An unsafe link was supplied. The bot will only accept links that are from Discord itself.'));
+                return message.channel.send(createEmbedError(
+                    'An unsafe link was supplied. The bot will only accept links that are from Discord itself.'
+                    + '\nValid domains: `https://cdn.discordapp.com/`'));
             }
             let targetDownloadFileExtension = resolvedMessageFile.substring(resolvedMessageFile.length - 4);
             let uuidFileNameExtension = targetDownloadFileExtension.startsWith('.') ? targetDownloadFileExtension.substring(1) : targetDownloadFileExtension;
@@ -145,7 +147,7 @@ module.exports = class ReverseCommand extends libCommand.Command {
                 });
             }
             else {
-                message.channel.send(createEmbedError('No file, or an unsupported file was linked to the ID.'));
+                message.channel.send(createEmbedError('No file, or an unsupported file was linked to the URL.'));
             }
 
         })();

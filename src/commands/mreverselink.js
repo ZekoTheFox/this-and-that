@@ -86,7 +86,9 @@ module.exports = class MReverseCommand extends libCommand.Command {
             console.log('Received link, checking attachment extension and origin...');
             let resolvedMessageFile = args[1];
             if (!resolvedMessageFile.startsWith('https://cdn.discordapp.com/attachments/')) {
-                return message.channel.send(createEmbedError('An unsafe link was supplied. The bot will only accept links that are from Discord itself.'));
+                return message.channel.send(createEmbedError(
+                    'An unsafe link was supplied. The bot will only accept links that are from Discord itself.'
+                    + '\nValid domains: `https://cdn.discordapp.com/`'));
             }
             // Setup for downloading and checking message attachment.
             let targetDownloadFileExtension = resolvedMessageFile.substring(resolvedMessageFile.length - 3);

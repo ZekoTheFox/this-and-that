@@ -9,7 +9,7 @@ const FormData = require('form-data');
 const { createEmbedError, createEmbedImage } = require('../util/embed');
 
 
-module.exports = class ReverseCommand extends libCommand.Command {
+module.exports = class IReverseCommand extends libCommand.Command {
     constructor() {
         super();
         // Meta Command Information
