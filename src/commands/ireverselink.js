@@ -93,63 +93,60 @@ module.exports = class IReverseLinkCommand extends libCommand.Command {
             }
             let targetDownloadFileExtension = resolvedMessageFile.substring(resolvedMessageFile.length - 4);
             let uuidFileNameExtension = targetDownloadFileExtension.startsWith('.') ? targetDownloadFileExtension.substring(1) : targetDownloadFileExtension;
-            if (uuidFileNameExtension === 'png' || uuidFileNameExtension === 'jpg' || uuidFileNameExtension === 'jpeg' || uuidFileNameExtension === 'gif') {
-                console.log('Passed extension check.');
-                // Generate a unique name first.
-                let uuidFileName = this.uuidv4();
-                let uuidFile = `./cache/images/${uuidFileName}.${uuidFileNameExtension}`;
-                // Download the image
-                await this.download(resolvedMessageFile, uuidFile);
+            if (uuidFileNameExtension !== 'png' && uuidFileNameExtension !== 'jpg' && uuidFileNameExtension !== 'jpeg' && uuidFileNameExtension !== 'gif') {
+                return message.channel.send(createEmbedError('No file, or an unsupported file was linked to the URL.'));
+            }
+            console.log('Passed extension check.');
+            // Generate a unique name first.
+            let uuidFileName = this.uuidv4();
+            let uuidFile = `./cache/images/${uuidFileName}.${uuidFileNameExtension}`;
+            // Download the image
+            await this.download(resolvedMessageFile, uuidFile);
 
-                if (libFs.statSync(uuidFile)['size'] > 1024 * 1000)
-                    return message.channel.send(createEmbedError('The file / attachment is too large to reverse image search. Try downscaling or cropping the image. (Max file size is 1MB, sowwy...)'));
+            if (libFs.statSync(uuidFile)['size'] > 1024 * 1000)
+                return message.channel.send(createEmbedError('The file / attachment is too large to reverse image search. Try downscaling or cropping the image. (Max file size is 1MB, sowwy...)'));
 
-                let form = new FormData();
-                form.append('image', libFs.createReadStream(uuidFile));
-                form.getLength((err, length) => {
-                    if (err)
-                        return requestCallback(err);
-                    var r = libRequest.post(botConfig.bingApiEndpoint, (err2, res, body) => {
-                        // console.log(JSON.stringify(JSON.parse(body), null, '  '));
-                        // Log responsed data
-                        libFs.writeFileSync(`./logs/api/${uuidFileName}.json`, body);
-                        console.log('Found image. Sending response...')
-                        let responseData = JSON.parse(body);
-                        let foundImageData = true;
-                        let imageData;
+            let form = new FormData();
+            form.append('image', libFs.createReadStream(uuidFile));
+            form.getLength((err, length) => {
+                if (err)
+                    return requestCallback(err);
+                var r = libRequest.post(botConfig.bingApiEndpoint, (err2, res, body) => {
+                    // console.log(JSON.stringify(JSON.parse(body), null, '  '));
+                    // Log responsed data
+                    libFs.writeFileSync(`./logs/api/${uuidFileName}.json`, body);
+                    console.log('Found image. Sending response...')
+                    let responseData = JSON.parse(body);
+                    let foundPagesIncluding = true;
+                    let imageData;
+                    try {
+                        imageData = responseData.tags[0].actions.filter(e => e.actionType === 'PagesIncluding')[0].data.value;
+                    } catch {
+                        foundPagesIncluding = false;
+                    }
+                    if (foundPagesIncluding === false) {
                         try {
                             imageData = responseData.tags[0].actions.filter(e => e.actionType === 'VisualSearch')[0].data.value;
                         } catch {
-                            foundImageData = false;
+                            return message.channel.send(createEmbedError('No results for the requested image was found.'));
                         }
-                        if (foundImageData === false) {
-                            try {
-                                imageData = responseData.tags[0].actions.filter(e => e.actionType === 'PagesIncluding')[0].data.value;
-                            } catch {
-                                return message.channel.send(createEmbedError('No results for the requested image was found.'));
-                            }
-                        }
-                        message.channel.send(createEmbedImage(
-                            `I found ${imageData.length} or more images. Showing the top-most image returned...`
-                            + `\n\n__"${imageData[0].name}"__\n[Image Link](${imageData[0].contentUrl})`,
-                            'Reverse Image Search',
-                            `Response ID: ${uuidFileName}`,
-                            imageData[0].contentUrl));
+                    }
+                    message.channel.send(createEmbedImage(
+                        `I found ${imageData.length} ${foundPagesIncluding ? 'pages including that image.' : 'pages with a similar image(s)'}. Showing the top-most image returned...`
+                        + `\n\n__"${imageData[0].name}"__\n[Image Link](${imageData[0].contentUrl})`,
+                        'Reverse Image Search',
+                        `Response ID: ${uuidFileName}`,
+                        imageData[0].contentUrl));
 
-                        libFs.unlink(uuidFile, (err) => {
-                            if (err)
-                                console.err(err);
-                        });
-                        console.log('Deleted requested file.');
+                    libFs.unlink(uuidFile, (err) => {
+                        if (err)
+                            console.err(err);
                     });
-                    r._form = form;
-                    r.setHeader('Ocp-Apim-Subscription-Key', botConfig.bingApiKey);
+                    console.log('Deleted requested file.');
                 });
-            }
-            else {
-                message.channel.send(createEmbedError('No file, or an unsupported file was linked to the URL.'));
-            }
-
+                r._form = form;
+                r.setHeader('Ocp-Apim-Subscription-Key', botConfig.bingApiKey);
+            });
         })();
     }
 }
