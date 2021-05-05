@@ -16,10 +16,10 @@ module.exports = class ReverseCommand extends libCommand.Command {
         this.internalCommandEnabled = true;
         // Help Information
         this.helpInfo = {
-            title: 'Reverse Image Search (ID)',
-            description: 'Reverse image searches the attachment from the ID given.\nSupported Filename Extensions: `*.png`, `*.jpg`, `*.jpeg`, `*.gif`',
-            syntax: 'ireverse <TOS> <ID>',
-            example: 'ireverse <TOS> 838366042727383041'
+            title: 'Reverse Image Search (URL)',
+            description: 'Reverse image searches the attachment from the URL given.\nSupported Filename Extensions: `*.png`, `*.jpg`, `*.jpeg`, `*.gif`',
+            syntax: 'ireverselink <TOS> <ID>',
+            example: 'ireverselink <TOS> https://cdn.discordapp.com/attachments/839030783758958612/839314972785246228/github-mark.png'
         }
     }
 
@@ -68,7 +68,7 @@ module.exports = class ReverseCommand extends libCommand.Command {
 
     showImageTOS() {
         return createEmbedError(
-            'You must agree to the terms of service by using `&ireverse yes <ID>`'
+            'You must agree to the terms of service by using `&ireverselink yes <URL>`'
             + '\nBy saying `yes`, you are agreeing that you will not abuse this service, and will use it willingly without any gurantees or warrenty of any kind.'
             + '\nUsing this command also requires that you agree to Microsoft\'s [Privacy Policy](https://privacy.microsoft.com/en-us/privacystatement), as well as [Service Agreement](https://www.microsoft.com/en-us/servicesagreement/).');
     }
@@ -84,22 +84,11 @@ module.exports = class ReverseCommand extends libCommand.Command {
         }
 
         (async () => {
-            let resolvedMessage;
-            await message.channel.messages.fetch(args[1])
-                .then(message => {
-                    resolvedMessage = message;
-                })
-                .catch(err => {
-                    console.error(err);
-                });
-            if (!resolvedMessage) {
-                message.channel.send(createEmbedError(
-                    'An error occurred when attempting to resolve the specified message ID!'
-                    + '\nAre you in the same channel that the ID is in?'));
-                return console.log('Unable to resolve message.');
+            console.log('Received link, checking attachment extension and origin...');
+            let resolvedMessageFile = args[1];
+            if (!resolvedMessageFile.startsWith('https://cdn.discordapp.com/attachments/')) {
+                return message.channel.send(createEmbedError('An unsafe link was supplied. The bot will only accept links that are from Discord itself.'));
             }
-            console.log('Resolved snowflake, checking attachment extension...');
-            let resolvedMessageFile = resolvedMessage.attachments.first().name;
             let targetDownloadFileExtension = resolvedMessageFile.substring(resolvedMessageFile.length - 4);
             let uuidFileNameExtension = targetDownloadFileExtension.startsWith('.') ? targetDownloadFileExtension.substring(1) : targetDownloadFileExtension;
             if (uuidFileNameExtension === 'png' || uuidFileNameExtension === 'jpg' || uuidFileNameExtension === 'jpeg' || uuidFileNameExtension === 'gif') {
@@ -108,7 +97,7 @@ module.exports = class ReverseCommand extends libCommand.Command {
                 let uuidFileName = this.uuidv4();
                 let uuidFile = `./cache/images/${uuidFileName}.${uuidFileNameExtension}`;
                 // Download the image
-                await this.download(resolvedMessage.attachments.first().url, uuidFile);
+                await this.download(resolvedMessageFile, uuidFile);
 
                 if (libFs.statSync(uuidFile)['size'] > 1024 * 1000)
                     return message.channel.send(createEmbedError('The file / attachment is too large to reverse image search. Try downscaling or cropping the image. (Max file size is 1MB, sowwy...)'));

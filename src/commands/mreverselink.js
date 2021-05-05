@@ -15,10 +15,10 @@ module.exports = class MReverseCommand extends libCommand.Command {
         this.internalCommandEnabled = true;
         // Help Information
         this.helpInfo = {
-            title: 'Reverse Audio Search (ID)',
-            description: 'Uses fingerprinting to reverse search audio files from the ID given.\nSupported File Extensions: `*.mp3`, `*.wav`, `*.m4a`',
-            syntax: 'mreverse <TOS> <ID>',
-            example: 'mreverse <TOS> 838929937498112050'
+            title: 'Reverse Audio Search (Link)',
+            description: 'Uses fingerprinting to reverse search audio files from the URL given.\nSupported File Extensions: `*.mp3`, `*.wav`, `*.m4a`',
+            syntax: 'mreverselink <TOS> <URL>',
+            example: 'mreverselink <TOS> https://cdn.discordapp.com/attachments/839030783758958612/839320362273210429/Local_Forecast_-_Elevator.mp3'
         }
     }
 
@@ -67,7 +67,7 @@ module.exports = class MReverseCommand extends libCommand.Command {
 
     showAudioTOS() {
         return createEmbedError(
-            'You must agree to the terms of service by using `&mreverse yes <ID>`'
+            'You must agree to the terms of service by using `&mreverselink yes <URL>`'
             + '\nBy saying `yes`, you are agreeing that you will not abuse this service, and will use it willingly without any gurantees or warrenty of any kind.')
     }
 
@@ -83,27 +83,16 @@ module.exports = class MReverseCommand extends libCommand.Command {
 
         // IIALF
         (async () => {
-            // Setup for resolving target message.
-            let resolvedMessage;
-            // Resolve message.
-            await message.channel.messages.fetch(args[1])
-                .then(message => {
-                    resolvedMessage = message;
-                })
-                .catch(err => {
-                    console.error(err);
-                });
-            if (!resolvedMessage) {
-                message.channel.send(createEmbedError('An error occurred when attempting to resolve the specified message ID!\nAre you in the same channel that the ID is in?'));
-                return console.log('Unable to resolve message.');
+            console.log('Received link, checking attachment extension and origin...');
+            let resolvedMessageFile = args[1];
+            if (!resolvedMessageFile.startsWith('https://cdn.discordapp.com/attachments/')) {
+                return message.channel.send(createEmbedError('An unsafe link was supplied. The bot will only accept links that are from Discord itself.'));
             }
-
             // Setup for downloading and checking message attachment.
-            let resolvedMessageFile = resolvedMessage.attachments.first().name;
             let targetDownloadFileExtension = resolvedMessageFile.substring(resolvedMessageFile.length - 3);
             let targetDownloadFile = `./cache/music/${this.uuidv4()}.` + targetDownloadFileExtension;
             // Download attachment from message.
-            await this.download(resolvedMessage.attachments.first().url, targetDownloadFile);
+            await this.download(resolvedMessageFile, targetDownloadFile);
             if (targetDownloadFileExtension !== 'mp3' && targetDownloadFileExtension !== 'wav' && targetDownloadFileExtension !== 'm4a') {
                 return message.channel.send(createEmbedError('An unsupported file was supplied to search. Supported file types for reverse audio searching are `*.mp3`, `*.wav`, `*.m4a`'));
             }
