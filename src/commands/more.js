@@ -2,7 +2,7 @@ const botConfig = require('../../config.json');
 const libCommand = require('../command.js');
 const libFs = require('fs');
 // Constants
-const { createEmbedError } = require('../util/embed');
+const { createEmbedError, createEmbedImage } = require('../util/embed');
 
 module.exports = class MoreCommand extends libCommand.Command {
     constructor() {
