@@ -135,7 +135,8 @@ module.exports = class MReverseCommand extends libCommand.Command {
                                 `**Music Title**: *${musicTitle}*`
                                 + `\n**Album(s)**: *${arrayMusicAlbums.join(', ')}*`
                                 + `\n**Artist(s)**: *${arrayMusicArtists.join(', ')}*`,
-                                'Reverse Audio Search'));
+                                'Reverse Audio Search',
+                                'Is this the right song? I can\'t really tell...'));
                         });
 
                     libFs.unlink(targetDownloadFile, (err) => console.error);
