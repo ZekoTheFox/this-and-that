@@ -1,5 +1,5 @@
 # This And That
-Reverse Image Search Bot for Discord
+Reverse Image / Audio Searching Bot for Discord
 
 ## Cache Folder
 You may need to make a cache folder in the extracted directory.
