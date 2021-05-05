@@ -1,5 +1,5 @@
 // Bot Invite Link:
-// https://discord.com/oauth2/authorize?client_id=739647878296895590&scope=bot&permissions=2048
+// https://discord.com/oauth2/authorize?client_id=739647878296895590&scope=bot&permissions=16384
 
 // Include config
 const botConfig = require('./config.json');
