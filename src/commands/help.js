@@ -37,7 +37,7 @@ module.exports = class HelpCommand extends libCommand.Command {
             `The bot's current prefix is: \`${prefix}\``
             + `\n${assembledHelpString.join('\n\n')}`,
             'Help',
-            `Please remember, this bot isn't free to run! Please see \`${prefix}donate\` for more infomation.`));
+            `Please remember, this bot isn't free to run! Please see **${prefix}donate** for more infomation.`));
         });
     }
 }
