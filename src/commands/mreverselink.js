@@ -8,7 +8,7 @@ const https = require('https');
 const exec = require('child_process').exec;
 const { createEmbedError, createEmbedSuccess } = require('../util/embed');
 
-module.exports = class MReverseCommand extends libCommand.Command {
+module.exports = class MReverseLinkCommand extends libCommand.Command {
     constructor() {
         super();
         // Meta Command Information
