@@ -133,19 +133,33 @@ module.exports = class IReverseCommand extends libCommand.Command {
                     } catch {
                         foundPagesIncluding = false;
                     }
-                    if (foundPagesIncluding === false) {
+                    if (foundPagesIncluding === false || imageData.length < 1) {
                         try {
                             imageData = responseData.tags[0].actions.filter(e => e.actionType === 'VisualSearch')[0].data.value;
                         } catch {
                             return message.channel.send(createEmbedError('No results for the requested image was found.'));
                         }
                     }
+                    // console.log('imageData =', imageData);
+                    let validImages = [];
+                    imageData.forEach(element => {
+                        let elementType = element.encodingFormat;
+                        if (!(elementType)) {
+                            return;
+                        }
+                        if (elementType === 'png' || elementType === 'jpg' || elementType === 'jpeg') {
+                            validImages.push(element);
+                        }
+                    });
+                    if (validImages.length < 1) {
+                        return message.channel.send(createEmbedError('No results for the requested image was found.'));
+                    }
                     message.channel.send(createEmbedImage(
-                        `I found ${imageData.length} ${foundPagesIncluding ? 'pages including that image.' : 'pages with a similar image(s)'}. Showing the top-most image returned...`
-                        + `\n\n__"${imageData[0].name}"__\n[Image Link](${imageData[0].contentUrl})`,
+                        `I found ${validImages.length} ${foundPagesIncluding ? 'pages including that image.' : 'pages with a similar image(s)'}. Showing the top-most image returned...`
+                        + `\n\n__"${validImages[0].name}"__\n[Image Link](${validImages[0].contentUrl})`,
                         'Reverse Image Search',
                         `Response ID: ${uuidFileName}`,
-                        imageData[0].contentUrl));
+                        validImages[0].contentUrl));
 
                     libFs.unlink(uuidFile, (err) => {
                         if (err)
